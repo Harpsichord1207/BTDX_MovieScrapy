@@ -35,7 +35,7 @@ class BtdxMovie(Thread):
                         thread_info_logger.info(info)
                     else:
                         info = '[{}] Movie url parse failed: {}'.format(self.name, url)
-                        thread_info_logger.info(info)
+                        thread_info_logger.error(info)
                 new_url = re.findall('href="(https://.*?)"', html)
                 for u in new_url:
                     if '#' in u:
@@ -49,10 +49,10 @@ class BtdxMovie(Thread):
                 self.used_url[url] = 'Succeed'
             except Exception:
                 if retry < 5:
-                    thread_info_logger.info('[{}] Failed for {} times: {}.'.format(self.name, retry, url))
+                    thread_info_logger.critical('[{}] Failed for {} times: {}.'.format(self.name, retry, url))
                     self.all_url[url] = [depth - 1, retry + 1]
                 else:
-                    thread_info_logger.info('[{}] Totally failed after {} times: {}.'.format(self.name, retry, url))
+                    thread_info_logger.error('[{}] Totally failed after {} times: {}.'.format(self.name, retry, url))
                     self.used_url[url] = 'Failed'
             info = ('[{}]'.format(self.name), 'ALL:', str(len(self.all_url)),
                     'USED:', str(len(self.used_url)), 'MOV:', str(len(self.movie_url)))
