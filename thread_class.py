@@ -1,7 +1,8 @@
-from threading import Thread
-import requests
-from logger import thread_info_logger
 import re
+import requests
+from threading import Thread
+from html_parser import movie_parser
+from logger import thread_info_logger
 
 
 class BtdxMovie(Thread):
@@ -18,15 +19,23 @@ class BtdxMovie(Thread):
             try:
                 url, info = self.all_url.popitem(last=False)
                 depth, retry = info
-                if depth > 10 or retry > 5:
+                if depth > 10:
                     continue
             except KeyError:
-                continue
-            info = '[{}] [Depth: {}]current url: '.format(self.name, depth) + url
+                break
+            info = '[{}] [Depth:{}] [Retry:{}]: '.format(self.name, depth, retry) + url
             thread_info_logger.info(info)
             depth += 1
             try:
                 html = requests.get(url).text
+                if re.match('https://www.btdx8.com/torrent/.*?html', url):
+                    if movie_parser(html):
+                        self.movie_url.add(url)
+                        info = '[{}] Movie url parse successfully: {}'.format(self.name, url)
+                        thread_info_logger.info(info)
+                    else:
+                        info = '[{}] Movie url parse failed: {}'.format(self.name, url)
+                        thread_info_logger.info(info)
                 new_url = re.findall('href="(https://.*?)"', html)
                 for u in new_url:
                     if '#' in u:
@@ -35,14 +44,16 @@ class BtdxMovie(Thread):
                         u = u.split('?')[0]
                     if u in self.used_url or u in self.all_url:
                         continue
-                    self.all_url[u] = [depth, retry]
-                    if re.match('https://www.btdx8.com/torrent/.*?html', u):
-                        self.movie_url.add(u)
-                thread_info_logger.info('[{}] current url succeed.'.format(self.name))
+                    self.all_url[u] = [depth, 0]
+                thread_info_logger.info('[{}] Succeed after {} times: {}.'.format(self.name, retry, url))
+                self.used_url[url] = 'Succeed'
             except Exception:
-                thread_info_logger.info('[{}] current url failed for {} times.'.format(self.name, retry))
-                self.all_url[u] = [depth-1, retry+1]
-            self.used_url.add(url)
+                if retry < 5:
+                    thread_info_logger.info('[{}] Failed for {} times: {}.'.format(self.name, retry, url))
+                    self.all_url[url] = [depth - 1, retry + 1]
+                else:
+                    thread_info_logger.info('[{}] Totally failed after {} times: {}.'.format(self.name, retry, url))
+                    self.used_url[url] = 'Failed'
             info = ('[{}]'.format(self.name), 'ALL:', str(len(self.all_url)),
                     'USED:', str(len(self.used_url)), 'MOV:', str(len(self.movie_url)))
             info = ' '.join(info)

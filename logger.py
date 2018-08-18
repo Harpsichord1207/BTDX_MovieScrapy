@@ -29,4 +29,3 @@ record_logger = get_file_logger('record', 'record.csv')
 
 if __name__ == '__main__':
     record_logger.critical('Test')
-
