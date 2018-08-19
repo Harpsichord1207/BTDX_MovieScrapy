@@ -1,5 +1,7 @@
 import logging
 import os
+import requests
+import json
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
@@ -13,19 +15,27 @@ def get_log_dir():
     return log_dir
 
 
-def get_file_logger(name=None, file_name='main.log'):
+def get_file_logger(name=None, file_name='main.log', formatter='%(asctime)s - %(levelname)s - %(message)s'):
     logger = logging.getLogger(name)
     file_handler = logging.FileHandler(os.path.join(get_log_dir(), file_name))
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(formatter)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
 
 
-main_logger = get_file_logger('main', 'main.log')
+def dingding_alert(message, token='238195ad2235e2adf473f3f9098ab6d36e18037c2a8a84600a11fe85ed77e8a7'):
+    url = r'https://oapi.dingtalk.com/robot/send?access_token=' + token
+    content = dict(content=message)
+    payload = dict(msgtype='text', text=content)
+    headers = {'Content-type': 'application/json'}
+    resp = requests.post(url, data=json.dumps(payload), headers=headers)
+    return resp.json()['errcode']
+
+
 thread_info_logger = get_file_logger('thread_info', 'thread_info.log')
-record_logger = get_file_logger('record', 'record.csv')
+record_logger = get_file_logger('record', 'record.csv', '')
 
 
 if __name__ == '__main__':
-    record_logger.critical('Test')
+    dingding_alert('中文')

@@ -19,7 +19,7 @@ class BtdxMovie(Thread):
             try:
                 url, info = self.all_url.popitem(last=False)
                 depth, retry = info
-                if depth > 10:
+                if depth > 2:
                     continue
             except KeyError:
                 break
@@ -29,19 +29,18 @@ class BtdxMovie(Thread):
             try:
                 html = requests.get(url).text
                 if re.match('https://www.btdx8.com/torrent/.*?html', url):
-                    if movie_parser(html):
-                        self.movie_url.add(url)
-                        info = '[{}] Movie url parse successfully: {}'.format(self.name, url)
-                        thread_info_logger.info(info)
-                    else:
-                        info = '[{}] Movie url parse failed: {}'.format(self.name, url)
-                        thread_info_logger.error(info)
+                    if url not in self.movie_url:
+                        if movie_parser(url, html):
+                            self.movie_url.add(url)
+                            info = '[{}] Movie url parse successfully: {}'.format(self.name, url)
+                            thread_info_logger.info(info)
+                        else:
+                            info = '[{}] Movie url parse failed: {}'.format(self.name, url)
+                            thread_info_logger.error(info)
                 new_url = re.findall('href="(https://.*?)"', html)
                 for u in new_url:
                     if '#' in u:
                         u = u.split('#')[0]
-                    if '?' in u:
-                        u = u.split('?')[0]
                     if u in self.used_url or u in self.all_url:
                         continue
                     self.all_url[u] = [depth, 0]

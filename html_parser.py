@@ -2,23 +2,32 @@ import re
 from logger import record_logger
 
 
-def movie_parser(html):
+def movie_parser(url, html):
     try:
         title = re.findall('<h1 class="postli-1">(.*?)</h1>', html)[0]
+    except IndexError:
+        return False
+
+    try:
         movie_name = re.findall('\[(.*?)\]', title)[0]
+    except IndexError:
+        movie_name = 'null'
+
+    try:
         movie_category = re.findall('类型(.*?)<br', html)[0]
         movie_category = movie_category.replace(':', '').strip()
         movie_category = movie_category.replace('：', '').strip()
-        movie_score = re.findall('豆瓣(.*?)分', title)
-        if movie_score:
-            movie_score = movie_score[0]
-        else:
-            movie_score = 'null'
-        record = ','.join([movie_name, movie_category, movie_score, title])
-        record_logger.info(record)
-        return True
-    except Exception:
-        return False
+    except IndexError:
+        movie_category = 'null'
+
+    try:
+        movie_score = re.findall('豆瓣(.*?)分', title)[0]
+    except IndexError:
+        movie_score = 'null'
+
+    record = ','.join([movie_name, movie_category, movie_score, title, url])
+    record_logger.info(record)
+    return True
 
 
 if __name__ == '__main__':

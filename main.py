@@ -1,9 +1,12 @@
 from thread_class import BtdxMovie
 from collections import OrderedDict
+from logger import dingding_alert
 import time
 
 
 def main(max_treads_num=20):
+    dingding_alert('===Program starts===')
+
     # URL entrance
     base_url = r'https://www.btdx8.com/'
 
@@ -22,6 +25,10 @@ def main(max_treads_num=20):
     thread_list = []
     thread_id = 0
 
+    def get_info():
+        info = ('ALL:', str(len(all_url)), 'USED:', str(len(used_url)), 'MOV:', str(len(movie_url)))
+        return info
+
     while thread_list or all_url:
         for t in thread_list:
             if not t.is_alive():
@@ -32,7 +39,12 @@ def main(max_treads_num=20):
             t.start()
             thread_list.append(t)
         time.sleep(0.1)
+    if movie_url and len(movie_url) % 1000 == 0:
+        dingding_alert(get_info())
+
+    dingding_alert('===Finished===')
+    dingding_alert(get_info())
 
 
 if __name__ == '__main__':
-    main()
+    main(10)
