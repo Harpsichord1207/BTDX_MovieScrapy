@@ -39,6 +39,8 @@ class BtdxMovie(Thread):
                             thread_info_logger.error(info)
                 new_url = re.findall('href="(https://.*?)"', html)
                 for u in new_url:
+                    if not re.match('https://.*?btdx8.com', u):
+                        continue
                     if '#' in u:
                         u = u.split('#')[0]
                     if u in self.used_url or u in self.all_url:

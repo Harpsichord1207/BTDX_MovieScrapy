@@ -39,8 +39,8 @@ def main(max_treads_num=20):
             t.start()
             thread_list.append(t)
         time.sleep(0.1)
-    if movie_url and len(movie_url) % 1000 == 0:
-        dingding_alert(get_info())
+        if movie_url and len(movie_url) % 1000 == 0:
+            dingding_alert(get_info())
 
     dingding_alert('===Finished===')
     dingding_alert(get_info())
