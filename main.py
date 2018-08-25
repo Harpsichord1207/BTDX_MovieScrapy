@@ -2,6 +2,7 @@ from thread_class import BtdxMovie
 from collections import OrderedDict
 from logger import dingding_alert
 import time
+from config import token
 
 
 def main(max_treads_num=20):
@@ -40,10 +41,10 @@ def main(max_treads_num=20):
             thread_list.append(t)
         time.sleep(0.1)
         if movie_url and len(movie_url) % 1000 == 0:
-            dingding_alert(get_info())
+            dingding_alert(get_info(), token=token)
 
-    dingding_alert('===Finished===')
-    dingding_alert(get_info())
+    dingding_alert('===Finished===', token=token)
+    dingding_alert(get_info(), token=token)
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ def get_file_logger(name=None, file_name='main.log', formatter='%(asctime)s - %(
     return logger
 
 
-def dingding_alert(message, token='238195ad2235e2adf473f3f9098ab6d36e18037c2a8a84600a11fe85ed77e8a7'):
+def dingding_alert(message, token=''):
     url = r'https://oapi.dingtalk.com/robot/send?access_token=' + token
     content = dict(content=message)
     payload = dict(msgtype='text', text=content)
