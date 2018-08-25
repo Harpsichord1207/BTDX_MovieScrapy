@@ -25,7 +25,9 @@ def movie_parser(url, html):
     except IndexError:
         movie_score = 'null'
 
-    record = ','.join([movie_name, movie_category, movie_score, title, url])
+    record = [movie_name, movie_category, movie_score, title, url]
+    record = [e.replace(',', '-') for e in record]
+    record = ','.join(record)
     record_logger.info(record)
     return True
 

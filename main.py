@@ -6,7 +6,7 @@ from config import token
 
 
 def main(max_treads_num=20):
-    dingding_alert('===Program starts===')
+    dingding_alert('===Program starts===', token=token)
 
     # URL entrance
     base_url = r'https://www.btdx8.com/'
